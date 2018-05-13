@@ -54,8 +54,6 @@ public class Projects {
                                      .anyMatch(value -> value.equals(moduleName));
     }
     
-    
-    
     private boolean createFiles(List<ModuleProject> moduleProjectList, String className) {
         try {
             TemplateFile[] files = moduleProjectList.stream()

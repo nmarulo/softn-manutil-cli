@@ -50,7 +50,7 @@ public class Main {
             try {
                 System.out.println("Estableciendo fichero \"properties\"...");
                 Projects projects = new Projects(propertiesPath);
-    
+                
                 System.out.println("Creando clases...");
                 if (StringUtils.isEmpty(moduleName)) {
                     projects.createClasses(className);
@@ -59,7 +59,7 @@ public class Main {
                 }
                 
                 System.out.println("Finalizado correctamente.");
-            }catch (Exception ex){
+            } catch (Exception ex) {
                 System.out.println(ex.getMessage());
             }
         }
