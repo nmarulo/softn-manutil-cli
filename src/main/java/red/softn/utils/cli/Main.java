@@ -16,8 +16,9 @@ public class Main {
      *  p - [Requerido] Establece la ruta del fichero "properties".
      *  c - [Requerido] Establece el nombre que se le agregara a los ficheros.
      *  m - [Opcional] Establece el nombre del modulo. Solo creara las clases de este modulo.
-     *  h - [Opcional] Imprime la lista de comando disponibles.
-     *  help - [Opcional] En caso de error, imprime la traza de la excepción.
+     *  help - [Opcional] Imprime la lista de comando disponibles.
+     *                      En este caso ya no seran obligatorias las opciones requeridas.
+     *  debug - [Opcional] En caso de error, imprime la traza de la excepción.
      */
     public static void main(String[] args) {
         checkDebug(args);
