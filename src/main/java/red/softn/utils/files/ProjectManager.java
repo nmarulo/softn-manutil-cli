@@ -6,21 +6,21 @@ import java.io.File;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class Projects {
+public class ProjectManager {
     
     private File pathProperties;
     
-    private ProjectProperties projectProperties;
+    private ProjectManagerPropertiesFile projectManagerPropertiesFile;
     
-    public Projects(String pathProperties) {
+    public ProjectManager(String pathProperties) {
         this.pathProperties = new File(pathProperties);
         
         if (!this.pathProperties.exists()) {
             throw new RuntimeException(String.format("El fichero \"properties\" no existe. Ruta: %1$s", this.pathProperties.getAbsolutePath()));
         }
         
-        this.projectProperties = new ProjectProperties(this.pathProperties);
-        this.projectProperties.initProject();
+        this.projectManagerPropertiesFile = new ProjectManagerPropertiesFile(this.pathProperties);
+        this.projectManagerPropertiesFile.initProject();
     }
     
     public boolean createClassModule(String moduleName, String className) {
@@ -28,11 +28,11 @@ public class Projects {
     }
     
     public boolean createClasses(String className) {
-        return createFiles(this.projectProperties.getProjectModules(), className);
+        return createFiles(this.projectManagerPropertiesFile.getProjectModules(), className);
     }
     
     private TemplateFile prepareFileTemplate(ModuleProject moduleProject, String className) {
-        return this.projectProperties.getClassTemplateFile(moduleProject, className);
+        return this.projectManagerPropertiesFile.getClassTemplateFile(moduleProject, className);
     }
     
     private List<ModuleProject> getModuleProject(String moduleName) {
@@ -40,18 +40,18 @@ public class Projects {
             throw new RuntimeException("El directorio no existe.");
         }
         
-        return this.projectProperties.getProjectModules()
-                                     .stream()
-                                     .filter(value -> value.getDirectoryName()
+        return this.projectManagerPropertiesFile.getProjectModules()
+                                                .stream()
+                                                .filter(value -> value.getDirectoryName()
                                                            .equals(moduleName))
-                                     .collect(Collectors.toList());
+                                                .collect(Collectors.toList());
     }
     
     private boolean checkModule(String moduleName) {
-        return this.projectProperties.getProjectModules()
-                                     .stream()
-                                     .map(ModuleProject::getDirectoryName)
-                                     .anyMatch(value -> value.equals(moduleName));
+        return this.projectManagerPropertiesFile.getProjectModules()
+                                                .stream()
+                                                .map(ModuleProject::getDirectoryName)
+                                                .anyMatch(value -> value.equals(moduleName));
     }
     
     private boolean createFiles(List<ModuleProject> moduleProjectList, String className) {

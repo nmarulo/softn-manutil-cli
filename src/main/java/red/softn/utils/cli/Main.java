@@ -1,7 +1,7 @@
 package red.softn.utils.cli;
 
 import org.apache.commons.lang3.StringUtils;
-import red.softn.utils.files.Projects;
+import red.softn.utils.files.ProjectManager;
 
 import java.util.Arrays;
 import java.util.Scanner;
@@ -39,13 +39,13 @@ public class Main {
         String className      = projectManagerCli.getValueClass();
         
         println("Estableciendo fichero \"properties\"...");
-        Projects projects = new Projects(propertiesPath);
+        ProjectManager projectManager = new ProjectManager(propertiesPath);
         println("Creando clases...");
         
         if (StringUtils.isEmpty(moduleName)) {
-            projects.createClasses(className);
+            projectManager.createClasses(className);
         } else {
-            projects.createClassModule(moduleName, className);
+            projectManager.createClassModule(moduleName, className);
         }
         
         println("Finalizado correctamente.");

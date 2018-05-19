@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
-public class ProjectProperties {
+public class ProjectManagerPropertiesFile {
     
     private File fileProperties;
     
@@ -39,7 +39,7 @@ public class ProjectProperties {
     
     private String classesReplaceSeparator;
     
-    public ProjectProperties(File fileProperties) {
+    public ProjectManagerPropertiesFile(File fileProperties) {
         if (!fileProperties.exists()) {
             throw new RuntimeException("El fichero no existe.");
         }
