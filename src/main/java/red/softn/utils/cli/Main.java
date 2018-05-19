@@ -1,67 +1,79 @@
 package red.softn.utils.cli;
 
-import org.apache.commons.cli.*;
 import org.apache.commons.lang3.StringUtils;
 import red.softn.utils.files.Projects;
 
+import java.util.Arrays;
+import java.util.Scanner;
+import java.util.stream.Collectors;
+
 public class Main {
     
+    private static boolean MODE_DEBUG = false;
+    
+    /*
+     * Comandos:
+     *  p - [Requerido] Establece la ruta del fichero "properties".
+     *  c - [Requerido] Establece el nombre que se le agregara a los ficheros.
+     *  m - [Opcional] Establece el nombre del modulo. Solo creara las clases de este modulo.
+     *  h - [Opcional] Imprime la lista de comando disponibles.
+     *  help - [Opcional] En caso de error, imprime la traza de la excepción.
+     */
     public static void main(String[] args) {
-        String            propertiesPath    = null;
-        String            moduleName        = null;
-        String            className         = null;
-        CommandLineParser commandLineParser = new DefaultParser();
-        Options           options           = new Options();
-        
-        options.addOption(Option.builder("p")
-                                .longOpt("properties")
-                                .required()
-                                .hasArg()
-                                .build());
-        options.addOption(Option.builder("m")
-                                .longOpt("module")
-                                .hasArg()
-                                .build());
-        options.addOption(Option.builder("c")
-                                .longOpt("class")
-                                .required()
-                                .hasArg()
-                                .build());
+        checkDebug(args);
         
         try {
-            CommandLine commandLine = commandLineParser.parse(options, args);
+            ProjectManagerCli projectManagerCli = new ProjectManagerCli(args);
             
-            if (commandLine.hasOption("p")) {
-                propertiesPath = commandLine.getOptionValue("p");
-            }
-            
-            if (commandLine.hasOption("m")) {
-                moduleName = commandLine.getOptionValue("m");
-            }
-            
-            if (commandLine.hasOption("c")) {
-                className = commandLine.getOptionValue("c");
+            if (projectManagerCli.isNotOptionHelp()) {
+                initProject(projectManagerCli);
             }
         } catch (Exception ex) {
-            ex.printStackTrace();
+            println(ex.getMessage(), true, ex);
+        }
+    }
+    
+    private static void initProject(ProjectManagerCli projectManagerCli) {
+        String propertiesPath = projectManagerCli.getValueProperties();
+        String moduleName     = projectManagerCli.getValueModule();
+        String className      = projectManagerCli.getValueClass();
+        
+        println("Estableciendo fichero \"properties\"...");
+        Projects projects = new Projects(propertiesPath);
+        println("Creando clases...");
+        
+        if (StringUtils.isEmpty(moduleName)) {
+            projects.createClasses(className);
+        } else {
+            projects.createClassModule(moduleName, className);
         }
         
-        if (StringUtils.isNotEmpty(propertiesPath) && (StringUtils.isNotEmpty(moduleName) || StringUtils.isNotEmpty(className))) {
-            try {
-                System.out.println("Estableciendo fichero \"properties\"...");
-                Projects projects = new Projects(propertiesPath);
-                
-                System.out.println("Creando clases...");
-                if (StringUtils.isEmpty(moduleName)) {
-                    projects.createClasses(className);
-                } else {
-                    projects.createClassModule(moduleName, className);
-                }
-                
-                System.out.println("Finalizado correctamente.");
-            } catch (Exception ex) {
-                System.out.println(ex.getMessage());
+        println("Finalizado correctamente.");
+    }
+    
+    private static void checkDebug(String[] arg) {
+        String value = Arrays.stream(arg)
+                             .collect(Collectors.joining(" "));
+        MODE_DEBUG = StringUtils.containsIgnoreCase(value, "-debug");
+    }
+    
+    private static void println(String value) {
+        println(value, false, null);
+    }
+    
+    private static void println(String value, boolean wait, Exception ex) {
+        System.out.println(value);
+        
+        if (wait) {
+            if (MODE_DEBUG) {
+                ex.printStackTrace();
+            }
+            
+            try (Scanner scanner = new Scanner(System.in)) {
+                System.out.print("Pulse \"ENTER\" para continuar...");
+                scanner.nextLine();
             }
         }
     }
+    
 }
