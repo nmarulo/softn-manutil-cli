@@ -3,23 +3,27 @@ package red.softn.utils.files;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
+import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class ProjectManager {
     
-    private File pathProperties;
+    private File fileName;
     
     private ProjectManagerPropertiesFile projectManagerPropertiesFile;
     
-    public ProjectManager(String pathProperties) {
-        this.pathProperties = new File(pathProperties);
+    public ProjectManager(String fileName) {
+        this.fileName = new File(fileName);
         
-        if (!this.pathProperties.exists()) {
-            throw new RuntimeException(String.format("El fichero \"properties\" no existe. Ruta: %1$s", this.pathProperties.getAbsolutePath()));
+        if (!this.fileName.exists()) {
+            throw new RuntimeException(String.format("El fichero no existe. Verifique la ruta: %1$s", this.fileName.getAbsolutePath()));
         }
-        
-        this.projectManagerPropertiesFile = new ProjectManagerPropertiesFile(this.pathProperties);
+    }
+    
+    public void initProperties() {
+        this.projectManagerPropertiesFile = new ProjectManagerPropertiesFile(this.fileName);
         this.projectManagerPropertiesFile.initProject();
     }
     
@@ -37,13 +41,13 @@ public class ProjectManager {
     
     private List<ModuleProject> getModuleProject(String moduleName) {
         if (!checkModule(moduleName)) {
-            throw new RuntimeException("El directorio no existe.");
+            throw new RuntimeException(String.format("El directorio \"%1$s\" no existe.", moduleName));
         }
         
         return this.projectManagerPropertiesFile.getProjectModules()
                                                 .stream()
                                                 .filter(value -> value.getDirectoryName()
-                                                           .equals(moduleName))
+                                                                      .equals(moduleName))
                                                 .collect(Collectors.toList());
     }
     
@@ -55,16 +59,44 @@ public class ProjectManager {
     }
     
     private boolean createFiles(List<ModuleProject> moduleProjectList, String className) {
+        TemplateFile[] files = null;
+        
         try {
-            TemplateFile[] files = moduleProjectList.stream()
-                                                    .map(value -> prepareFileTemplate(value, className))
-                                                    .toArray(TemplateFile[]::new);
+            files = moduleProjectList.stream()
+                                     .map(value -> prepareFileTemplate(value, className))
+                                     .toArray(TemplateFile[]::new);
             
             for (TemplateFile file : files) {
                 FileUtils.writeStringToFile(file.getFile(), file.getContent(), file.getEncoding());
             }
         } catch (Exception ex) {
-            throw new RuntimeException("No se logro crear el fichero.", ex);
+            //Si falla uno se borran todos los ficheros creados.
+            if (!deleteFiles(files)) {
+                throw new RuntimeException("No se logro crear los ficheros.", ex);
+            }
+        }
+        
+        return true;
+    }
+    
+    private boolean deleteFiles(TemplateFile[] files) {
+        List<File> filesErrorDelete = new LinkedList<>();
+        File[] filesExist = Arrays.stream(files)
+                                  .map(TemplateFile::getFile)
+                                  .filter(File::exists)
+                                  .toArray(File[]::new);
+        
+        for (File file : filesExist) {
+            if (!FileUtils.deleteQuietly(file)) {
+                filesErrorDelete.add(file);
+            }
+        }
+        
+        if (!filesErrorDelete.isEmpty()) {
+            String filePaths = filesErrorDelete.stream()
+                                               .map(File::getAbsolutePath)
+                                               .collect(Collectors.joining(" "));
+            throw new RuntimeException(String.format("No se lograron eliminar los siguientes ficheros, por favor, borrarlos manualmente, rutas: %1$s", filePaths));
         }
         
         return true;

@@ -39,8 +39,10 @@ public class Main {
         String moduleName     = projectManagerCli.getValueModule();
         String className      = projectManagerCli.getValueClass();
         
-        println("Estableciendo fichero \"properties\"...");
+        println("Estableciendo fichero...");
         ProjectManager projectManager = new ProjectManager(propertiesPath);
+        println("Estableciendo propiedades...");
+        projectManager.initProperties();
         println("Creando clases...");
         
         if (StringUtils.isEmpty(moduleName)) {

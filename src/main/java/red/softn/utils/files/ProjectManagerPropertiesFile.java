@@ -40,38 +40,48 @@ public class ProjectManagerPropertiesFile {
     private String classesReplaceSeparator;
     
     public ProjectManagerPropertiesFile(File fileProperties) {
-        if (!fileProperties.exists()) {
-            throw new RuntimeException("El fichero no existe.");
-        }
-        
         this.fileProperties = fileProperties;
         this.properties = new Properties();
         
         try {
             this.properties.load(new FileInputStream(fileProperties));
         } catch (Exception ex) {
-            throw new RuntimeException(ex.getMessage());
+            throw new RuntimeException(ex);
         }
     }
     
     public void initProject() {
-        this.setDirectory(new File(getProperty(PropertyKeysConstants.KEY_DIRECTORY)));
+        this.setDirectory(getPropertyParseFile(PropertyKeysConstants.KEY_DIRECTORY));
         this.packageNameBase = getProperty(PropertyKeysConstants.KEY_PACKAGE);
         this.directoryPackages = getProperty(PropertyKeysConstants.KEY_DIRECTORY_PACKGES);
-        this.modulesValueFormatSeparator = this.properties.getProperty(PropertyKeysConstants.KEY_MODULE_FORMAT_SEPARATOR, PropertyKeysConstants.DEFAULT_VALUE_FORMAT_SEPARATOR);
-        this.modulePositionPackage = getProperty(PropertyKeysConstants.KEY_MODULE_FORMAT_POSITION_PACKAGE, PropertyKeysConstants.DEFAULT_VALUE_POSITION_PACKAGE);
-        this.modulePositionDirectory = getProperty(PropertyKeysConstants.KEY_MODULE_FORMAT_POSITION_DIRECTORY, PropertyKeysConstants.DEFAULT_VALUE_POSITION_DIRECTORY);
-        this.classesValueNameSeparator = this.properties.getProperty(PropertyKeysConstants.KEY_CLASSES_NAME_SEPARATOR, PropertyKeysConstants.DEFAULT_VALUE_CLASSES_NAME_SEPARATOR);
+        this.modulesValueFormatSeparator = getProperty(PropertyKeysConstants.KEY_MODULE_FORMAT_SEPARATOR, PropertyKeysConstants.DEFAULT_VALUE_FORMAT_SEPARATOR);
+        this.modulePositionPackage = getPropertyParseInt(PropertyKeysConstants.KEY_MODULE_FORMAT_POSITION_PACKAGE, PropertyKeysConstants.DEFAULT_VALUE_POSITION_PACKAGE);
+        this.modulePositionDirectory = getPropertyParseInt(PropertyKeysConstants.KEY_MODULE_FORMAT_POSITION_DIRECTORY, PropertyKeysConstants.DEFAULT_VALUE_POSITION_DIRECTORY);
+        this.classesValueNameSeparator = getProperty(PropertyKeysConstants.KEY_CLASSES_NAME_SEPARATOR, PropertyKeysConstants.DEFAULT_VALUE_CLASSES_NAME_SEPARATOR);
         this.classType = getProperty(PropertyKeysConstants.KEY_PROJECT_CLASS_TYPE);
-        this.packageCreate = getProperty(PropertyKeysConstants.KEY_PROJECT_PACKAGE_CREATE, PropertyKeysConstants.DEFAULT_VALUE_PROJECT_PACKAGE_CREATE);
-        this.packageModuleCreate = getProperty(PropertyKeysConstants.KEY_PROJECT_MODULE_PACKAGE_CREATE, PropertyKeysConstants.DEFAULT_VALUE_PROJECT_MODULE_PACKAGE_CREATE);
-        this.classesReplaceSeparator = this.properties.getProperty(PropertyKeysConstants.KEY_CLASSES_TEMPLATE_REPLACE_SEPARATOR, PropertyKeysConstants.DEFAULT_VALUE_CLASSES_TEMPLATE_REPLACE_SEPARATOR);
+        this.packageCreate = getPropertyParseBool(PropertyKeysConstants.KEY_PROJECT_PACKAGE_CREATE, PropertyKeysConstants.DEFAULT_VALUE_PROJECT_PACKAGE_CREATE);
+        this.packageModuleCreate = getPropertyParseBool(PropertyKeysConstants.KEY_PROJECT_MODULE_PACKAGE_CREATE, PropertyKeysConstants.DEFAULT_VALUE_PROJECT_MODULE_PACKAGE_CREATE);
+        this.classesReplaceSeparator = getProperty(PropertyKeysConstants.KEY_CLASSES_TEMPLATE_REPLACE_SEPARATOR, PropertyKeysConstants.DEFAULT_VALUE_CLASSES_TEMPLATE_REPLACE_SEPARATOR);
         
         initProjectModules();
     }
     
     public List<ModuleProject> getProjectModules() {
         return projectModules;
+    }
+    
+    public TemplateFile getClassTemplateFile(ModuleProject moduleProject, String className) {
+        className = StringUtils.replaceFirst(moduleProject.getClassNameTemplate(), this.classesValueNameSeparator, className);
+        
+        File   directoryPathClass = getDirectoryPathModuleProject(moduleProject);
+        String fileName           = String.format("%1$s%2$s%3$s.%4$s", directoryPathClass.getAbsolutePath(), File.separator, className, moduleProject.getClassExtension());
+        File   file               = new File(fileName);
+        
+        if (file.exists()) {
+            throw new RuntimeException(String.format("El fichero ya existe. Verifique la ruta: %1$s", file.getAbsolutePath()));
+        }
+        
+        return new TemplateFile(file, moduleProject.stringReplaceTemplate(className));
     }
     
     private File getDirectoryPathModuleProject(ModuleProject moduleProject) {
@@ -85,9 +95,14 @@ public class ProjectManagerPropertiesFile {
         
         File directoryModule = new File(directory.toString());
         
-        if (!directoryModule.exists() || !directoryModule.isDirectory() || !directoryModule.canWrite()) {
-            //TODO: agregar diferentes exceptions
-            throw new RuntimeException("El directorio no existe.");
+        if (!directoryModule.exists() || !directoryModule.isDirectory()) {
+            String message = "El directorio no existe.";
+            
+            if(!directoryModule.canWrite()){
+                message = "No se puede escribir en el directorio.";
+            }
+            
+            throw new RuntimeException(String.format("%1$s Verifique la ruta: %1$s", message, directoryModule.getAbsolutePath()));
         }
         
         return directoryModule;
@@ -102,7 +117,7 @@ public class ProjectManagerPropertiesFile {
     }
     
     private ModuleProject instanceModuleProject(String keyProperty) {
-        String        propertyValue            = this.properties.getProperty(keyProperty);
+        String        propertyValue            = getProperty(keyProperty);
         String[]      modulesValue             = StringUtils.split(propertyValue, this.modulesValueFormatSeparator);
         ModuleProject projectModule            = new ModuleProject();
         String        projectModuleKeyProperty = StringUtils.removeStart(keyProperty, ModuleProject.KEY_MODULES);
@@ -121,14 +136,14 @@ public class ProjectManagerPropertiesFile {
         String classesTemplateReplaceKey = String.format(ModuleProject.KEY_CLASSES_TEMPLATE_REPLACE, projectModuleKeyProperty);
         String classTemplateTypeKey      = String.format(ModuleProject.KEY_CLASSES_TEMPLATE_TYPE, projectModuleKeyProperty);
         
-        moduleProject.setClassTemplateFile(new File(getProperty(classTemplateFileKey)));
+        moduleProject.setClassTemplateFile(getPropertyParseFile(classTemplateFileKey));
         moduleProject.setClassNameTemplate(getProperty(classNameTemplateKey));
-        moduleProject.setClassExtension(this.properties.getProperty(classTemplateTypeKey, this.classType));
+        moduleProject.setClassExtension(getProperty(classTemplateTypeKey, this.classType));
         
         this.properties.stringPropertyNames()
                        .stream()
                        .filter(value -> StringUtils.startsWith(value, classesTemplateReplaceKey))
-                       .map(this.properties::getProperty)
+                       .map(this::getProperty)
                        .map(value -> StringUtils.split(value, this.classesReplaceSeparator))
                        .forEach(value -> moduleProject.addStringReplaceTemplate(value[0], value[1]));
         
@@ -144,7 +159,7 @@ public class ProjectManagerPropertiesFile {
     }
     
     private String getProperty(String key) {
-        String value = this.properties.getProperty(key, "");
+        String value = getProperty(key, "");
         
         if (StringUtils.isEmpty(value)) {
             throw new RuntimeException(String.format("La propiedad \"%1$s\" es requerida.", key));
@@ -153,18 +168,26 @@ public class ProjectManagerPropertiesFile {
         return value;
     }
     
-    private int getProperty(String key, String defaultValue) {
-        return Integer.parseInt(this.properties.getProperty(key, defaultValue));
+    private String getProperty(String key, String defaultValue) {
+        return this.properties.getProperty(key, defaultValue);
     }
     
-    private boolean getProperty(String key, boolean defaultValue) {
-        String value = this.properties.getProperty(key, "");
+    private int getPropertyParseInt(String key, String defaultValue) {
+        return Integer.parseInt(getProperty(key, defaultValue));
+    }
+    
+    private boolean getPropertyParseBool(String key, boolean defaultValue) {
+        String value = getProperty(key, "");
         
         if (StringUtils.isEmpty(value)) {
             return defaultValue;
         }
         
         return Boolean.parseBoolean(value);
+    }
+    
+    private File getPropertyParseFile(String key) {
+        return new File(getProperty(key));
     }
     
     private String splitPackages(String value, String regex) {
@@ -182,19 +205,5 @@ public class ProjectManagerPropertiesFile {
         }
         
         return StringUtils.removeEnd(StringUtils.removeStart(value, "/"), "/");
-    }
-    
-    public TemplateFile getClassTemplateFile(ModuleProject moduleProject, String className) {
-        className = StringUtils.replaceFirst(moduleProject.getClassNameTemplate(), this.classesValueNameSeparator, className);
-        
-        File   directoryPathClass = getDirectoryPathModuleProject(moduleProject);
-        String fileName           = String.format("%1$s%2$s%3$s.%4$s", directoryPathClass.getAbsolutePath(), File.separator, className, moduleProject.getClassExtension());
-        File   file               = new File(fileName);
-        
-        if (file.exists()) {
-            throw new RuntimeException(String.format("El fichero ya existe. Path:\"%1$s\"", file.getAbsolutePath()));
-        }
-        
-        return new TemplateFile(file, moduleProject.stringReplaceTemplate(className));
     }
 }

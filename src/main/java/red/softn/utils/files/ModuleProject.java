@@ -58,7 +58,7 @@ public class ModuleProject {
             
             return fileString;
         } catch (Exception ex) {
-            throw new RuntimeException(ex.getMessage());
+            throw new RuntimeException(ex);
         }
     }
     
