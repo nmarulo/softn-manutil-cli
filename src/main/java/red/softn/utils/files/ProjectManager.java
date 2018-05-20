@@ -71,8 +71,8 @@ public class ProjectManager {
             }
         } catch (Exception ex) {
             //Si falla uno se borran todos los ficheros creados.
-            if (!deleteFiles(files)) {
-                throw new RuntimeException("No se logro crear los ficheros.", ex);
+            if (files == null || !deleteFiles(files)) {
+                throw new RuntimeException(ex);
             }
         }
         

@@ -4,9 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class ProjectManagerPropertiesFile {
@@ -37,8 +35,6 @@ public class ProjectManagerPropertiesFile {
     
     private boolean packageModuleCreate;
     
-    private String classesReplaceSeparator;
-    
     public ProjectManagerPropertiesFile(File fileProperties) {
         this.fileProperties = fileProperties;
         this.properties = new Properties();
@@ -61,7 +57,6 @@ public class ProjectManagerPropertiesFile {
         this.classType = getProperty(PropertyKeysConstants.KEY_PROJECT_CLASS_TYPE);
         this.packageCreate = getPropertyParseBool(PropertyKeysConstants.KEY_PROJECT_PACKAGE_CREATE, PropertyKeysConstants.DEFAULT_VALUE_PROJECT_PACKAGE_CREATE);
         this.packageModuleCreate = getPropertyParseBool(PropertyKeysConstants.KEY_PROJECT_MODULE_PACKAGE_CREATE, PropertyKeysConstants.DEFAULT_VALUE_PROJECT_MODULE_PACKAGE_CREATE);
-        this.classesReplaceSeparator = getProperty(PropertyKeysConstants.KEY_CLASSES_TEMPLATE_REPLACE_SEPARATOR, PropertyKeysConstants.DEFAULT_VALUE_CLASSES_TEMPLATE_REPLACE_SEPARATOR);
         
         initProjectModules();
     }
@@ -98,7 +93,7 @@ public class ProjectManagerPropertiesFile {
         if (!directoryModule.exists() || !directoryModule.isDirectory()) {
             String message = "El directorio no existe.";
             
-            if(!directoryModule.canWrite()){
+            if (!directoryModule.canWrite()) {
                 message = "No se puede escribir en el directorio.";
             }
             
@@ -139,15 +134,26 @@ public class ProjectManagerPropertiesFile {
         moduleProject.setClassTemplateFile(getPropertyParseFile(classTemplateFileKey));
         moduleProject.setClassNameTemplate(getProperty(classNameTemplateKey));
         moduleProject.setClassExtension(getProperty(classTemplateTypeKey, this.classType));
-        
-        this.properties.stringPropertyNames()
-                       .stream()
-                       .filter(value -> StringUtils.startsWith(value, classesTemplateReplaceKey))
-                       .map(this::getProperty)
-                       .map(value -> StringUtils.split(value, this.classesReplaceSeparator))
-                       .forEach(value -> moduleProject.addStringReplaceTemplate(value[0], value[1]));
+        moduleProject.setStringReplaceTemplate(getMapStringReplaceTemplate(classesTemplateReplaceKey));
         
         return moduleProject;
+    }
+    
+    private Map<Integer, String> getMapStringReplaceTemplate(String classesTemplateReplaceKey) {
+        return this.properties.stringPropertyNames()
+                              .stream()
+                              .filter(value -> StringUtils.startsWith(value, classesTemplateReplaceKey))
+                              .map(this::splitKeyGetValueProperty)
+                              .collect(Collectors.toMap(value -> Integer.parseInt(value[0]), value -> value[1], (oldValue, newValue) -> newValue, TreeMap::new));
+    }
+    
+    private String[] splitKeyGetValueProperty(String value) {
+        String[] keySplit = StringUtils.split(value, ".");
+        
+        return new String[] {
+            keySplit[keySplit.length - 1],
+            this.getProperty(value)
+        };
     }
     
     private void setDirectory(File directory) {

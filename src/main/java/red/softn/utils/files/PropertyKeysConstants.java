@@ -22,8 +22,6 @@ public class PropertyKeysConstants {
     
     public static final String KEY_CLASSES_NAME_SEPARATOR = "project.class.name.separator";
     
-    public static final String KEY_CLASSES_TEMPLATE_REPLACE_SEPARATOR = "project.class.replace.separator";
-    
     public static final String DEFAULT_VALUE_POSITION_DIRECTORY = "0";
     
     public static final String DEFAULT_VALUE_POSITION_PACKAGE = "1";

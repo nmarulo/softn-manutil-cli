@@ -6,7 +6,10 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 public class ModuleProject {
     
@@ -33,30 +36,32 @@ public class ModuleProject {
     
     private String classNameTemplate;
     
-    private Map<String, String> stringReplaceTemplate;
+    private Map<Integer, String> stringReplaceTemplate;
     
     private String classExtension;
     
     public ModuleProject() {
-        this.stringReplaceTemplate = new HashMap<>();
+        this.stringReplaceTemplate = new TreeMap<>();
     }
     
-    public void addStringReplaceTemplate(String value, String replace) {
-        this.stringReplaceTemplate.put(value, replace);
+    public void addStringReplaceTemplate(int key, String value) {
+        if(this.stringReplaceTemplate.containsKey(key)){
+            throw new RuntimeException("La clave ya existe.");
+        }
+        
+        this.stringReplaceTemplate.put(key, value);
     }
     
     public String stringReplaceTemplate(String className) {
         try {
             String fileString = FileUtils.readFileToString(this.classTemplateFile, "UTF-8");
+            String[] valueList = this.stringReplaceTemplate.entrySet()
+                                                               .stream()
+                                                               .map(Map.Entry::getValue)
+                                                               .toArray(String[]::new);
+            fileString = String.format(fileString, valueList);
             
-            for (Map.Entry<String, String> entry : this.stringReplaceTemplate.entrySet()) {
-                fileString = StringUtils.replaceAll(fileString, entry.getKey(), entry.getValue());
-            }
-            
-            String classNameTemplate = FilenameUtils.getBaseName(this.classTemplateFile.getName());
-            fileString = StringUtils.replaceAll(fileString, classNameTemplate, className);
-            
-            return fileString;
+            return replaceNameClass(fileString, className);
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }
@@ -112,5 +117,17 @@ public class ModuleProject {
     
     public void setClassExtension(String classExtension) {
         this.classExtension = classExtension;
+    }
+    
+    public void setStringReplaceTemplate(Map<Integer, String> stringReplaceTemplate) {
+        this.stringReplaceTemplate = stringReplaceTemplate;
+    }
+    
+    private String replaceNameClass(String fileString, String className) {
+        String classNameFile = FilenameUtils.getBaseName(this.classTemplateFile.getName());
+        classNameFile = String.format(" %1$s ", classNameFile);
+        className = String.format(" %1$s ", className);
+        
+        return StringUtils.replaceAll(fileString, classNameFile, className);
     }
 }

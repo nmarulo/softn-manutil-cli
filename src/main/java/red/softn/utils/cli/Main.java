@@ -30,7 +30,7 @@ public class Main {
                 initProject(projectManagerCli);
             }
         } catch (Exception ex) {
-            println(ex.getMessage(), true, ex);
+            println(ex.getMessage(), ex);
         }
     }
     
@@ -64,14 +64,18 @@ public class Main {
         println(value, false, null);
     }
     
+    private static void println(String value, Exception ex){
+        println(value, false, ex);
+    }
+    
     private static void println(String value, boolean wait, Exception ex) {
         System.out.println(value);
         
+        if (MODE_DEBUG) {
+            ex.printStackTrace();
+        }
+        
         if (wait) {
-            if (MODE_DEBUG) {
-                ex.printStackTrace();
-            }
-            
             try (Scanner scanner = new Scanner(System.in)) {
                 System.out.print("Pulse \"ENTER\" para continuar...");
                 scanner.nextLine();
