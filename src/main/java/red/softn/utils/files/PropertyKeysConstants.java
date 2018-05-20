@@ -20,17 +20,11 @@ public class PropertyKeysConstants {
     
     public static final String KEY_MODULE_FORMAT_SEPARATOR = "project.module.format.separator";
     
-    public static final String KEY_CLASSES_NAME_SEPARATOR = "project.class.name.separator";
-    
     public static final String DEFAULT_VALUE_POSITION_DIRECTORY = "0";
     
     public static final String DEFAULT_VALUE_POSITION_PACKAGE = "1";
     
     public static final String DEFAULT_VALUE_FORMAT_SEPARATOR = ":";
-    
-    public static final String DEFAULT_VALUE_CLASSES_NAME_SEPARATOR = "%";
-    
-    public static final String DEFAULT_VALUE_CLASSES_TEMPLATE_REPLACE_SEPARATOR = "|";
     
     public static final String DEFAULT_VALUE_PACKAGE_SEPARATOR = "\\.";
     

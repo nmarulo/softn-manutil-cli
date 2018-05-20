@@ -5,11 +5,8 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.stream.Collectors;
 
 public class ModuleProject {
     
@@ -22,6 +19,8 @@ public class ModuleProject {
     public static final String KEY_CLASSES_TEMPLATE_TYPE = "project.classes.template.type.%1$s";
     
     public static final String KEY_CLASSES_TEMPLATE_REPLACE = "project.classes.template.replace.%1$s";
+    
+    public static final String REGEX_CLASS_NAME = "#\\{className\\}";
     
     private String directoryName;
     
@@ -45,7 +44,7 @@ public class ModuleProject {
     }
     
     public void addStringReplaceTemplate(int key, String value) {
-        if(this.stringReplaceTemplate.containsKey(key)){
+        if (this.stringReplaceTemplate.containsKey(key)) {
             throw new RuntimeException("La clave ya existe.");
         }
         
@@ -56,12 +55,11 @@ public class ModuleProject {
         try {
             String fileString = FileUtils.readFileToString(this.classTemplateFile, "UTF-8");
             String[] valueList = this.stringReplaceTemplate.entrySet()
-                                                               .stream()
-                                                               .map(Map.Entry::getValue)
-                                                               .toArray(String[]::new);
-            fileString = String.format(fileString, valueList);
-            
-            return replaceNameClass(fileString, className);
+                                                           .stream()
+                                                           .map(Map.Entry::getValue)
+                                                           .map(value -> replaceValueClassName(value, className))
+                                                           .toArray(String[]::new);
+            return String.format(fileString, valueList);
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }
@@ -123,11 +121,15 @@ public class ModuleProject {
         this.stringReplaceTemplate = stringReplaceTemplate;
     }
     
-    private String replaceNameClass(String fileString, String className) {
+    public String replaceNameClass(String fileString, String className) {
         String classNameFile = FilenameUtils.getBaseName(this.classTemplateFile.getName());
         classNameFile = String.format(" %1$s ", classNameFile);
         className = String.format(" %1$s ", className);
         
         return StringUtils.replaceAll(fileString, classNameFile, className);
+    }
+    
+    private String replaceValueClassName(String value, String className) {
+        return StringUtils.replaceAll(value, REGEX_CLASS_NAME, className);
     }
 }

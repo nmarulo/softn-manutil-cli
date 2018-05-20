@@ -19,8 +19,6 @@ public class ProjectManagerPropertiesFile {
     
     private String modulesValueFormatSeparator;
     
-    private String classesValueNameSeparator;
-    
     private int modulePositionDirectory;
     
     private int modulePositionPackage;
@@ -53,7 +51,6 @@ public class ProjectManagerPropertiesFile {
         this.modulesValueFormatSeparator = getProperty(PropertyKeysConstants.KEY_MODULE_FORMAT_SEPARATOR, PropertyKeysConstants.DEFAULT_VALUE_FORMAT_SEPARATOR);
         this.modulePositionPackage = getPropertyParseInt(PropertyKeysConstants.KEY_MODULE_FORMAT_POSITION_PACKAGE, PropertyKeysConstants.DEFAULT_VALUE_POSITION_PACKAGE);
         this.modulePositionDirectory = getPropertyParseInt(PropertyKeysConstants.KEY_MODULE_FORMAT_POSITION_DIRECTORY, PropertyKeysConstants.DEFAULT_VALUE_POSITION_DIRECTORY);
-        this.classesValueNameSeparator = getProperty(PropertyKeysConstants.KEY_CLASSES_NAME_SEPARATOR, PropertyKeysConstants.DEFAULT_VALUE_CLASSES_NAME_SEPARATOR);
         this.classType = getProperty(PropertyKeysConstants.KEY_PROJECT_CLASS_TYPE);
         this.packageCreate = getPropertyParseBool(PropertyKeysConstants.KEY_PROJECT_PACKAGE_CREATE, PropertyKeysConstants.DEFAULT_VALUE_PROJECT_PACKAGE_CREATE);
         this.packageModuleCreate = getPropertyParseBool(PropertyKeysConstants.KEY_PROJECT_MODULE_PACKAGE_CREATE, PropertyKeysConstants.DEFAULT_VALUE_PROJECT_MODULE_PACKAGE_CREATE);
@@ -66,17 +63,20 @@ public class ProjectManagerPropertiesFile {
     }
     
     public TemplateFile getClassTemplateFile(ModuleProject moduleProject, String className) {
-        className = StringUtils.replaceFirst(moduleProject.getClassNameTemplate(), this.classesValueNameSeparator, className);
+        String classNameFinal = StringUtils.replaceAll(moduleProject.getClassNameTemplate(), ModuleProject.REGEX_CLASS_NAME, className);
         
         File   directoryPathClass = getDirectoryPathModuleProject(moduleProject);
-        String fileName           = String.format("%1$s%2$s%3$s.%4$s", directoryPathClass.getAbsolutePath(), File.separator, className, moduleProject.getClassExtension());
+        String fileName           = String.format("%1$s%2$s%3$s.%4$s", directoryPathClass.getAbsolutePath(), File.separator, classNameFinal, moduleProject.getClassExtension());
         File   file               = new File(fileName);
         
         if (file.exists()) {
             throw new RuntimeException(String.format("El fichero ya existe. Verifique la ruta: %1$s", file.getAbsolutePath()));
         }
         
-        return new TemplateFile(file, moduleProject.stringReplaceTemplate(className));
+        String content = moduleProject.stringReplaceTemplate(className);
+        content = moduleProject.replaceNameClass(content, classNameFinal);
+        
+        return new TemplateFile(file, content);
     }
     
     private File getDirectoryPathModuleProject(ModuleProject moduleProject) {
