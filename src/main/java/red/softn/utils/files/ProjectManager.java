@@ -1,6 +1,7 @@
 package red.softn.utils.files;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.util.Arrays;
@@ -71,7 +72,7 @@ public class ProjectManager {
             }
         } catch (Exception ex) {
             //Si falla uno se borran todos los ficheros creados.
-            if (files == null || !deleteFiles(files)) {
+            if (files == null || !deleteFiles(files, className)) {
                 throw new RuntimeException(ex);
             }
         }
@@ -79,11 +80,12 @@ public class ProjectManager {
         return true;
     }
     
-    private boolean deleteFiles(TemplateFile[] files) {
+    private boolean deleteFiles(TemplateFile[] files, String className) {
         List<File> filesErrorDelete = new LinkedList<>();
         File[] filesExist = Arrays.stream(files)
                                   .map(TemplateFile::getFile)
                                   .filter(File::exists)
+                                  .map(value -> mapFileToDirectory(value, className))
                                   .toArray(File[]::new);
         
         for (File file : filesExist) {
@@ -100,5 +102,21 @@ public class ProjectManager {
         }
         
         return true;
+    }
+    
+    private File mapFileToDirectory(File file, String className) {
+        if (StringUtils.contains(className, PropertyKeysConstants.DEFAULT_VALUE_PACKAGE_SEPARATOR)) {
+            File parent = file.getParentFile();
+            int  count  = StringUtils.split(className, PropertyKeysConstants.REGEX_PACKAGE_SEPARATOR).length - 1;
+            
+            while (count > 1) {
+                parent = parent.getParentFile();
+                --count;
+            }
+            
+            return parent;
+        }
+        
+        return file;
     }
 }

@@ -29,10 +29,6 @@ public class ProjectManagerPropertiesFile {
     
     private String classType;
     
-    private boolean packageCreate;
-    
-    private boolean packageModuleCreate;
-    
     public ProjectManagerPropertiesFile(File fileProperties) {
         this.fileProperties = fileProperties;
         this.properties = new Properties();
@@ -47,13 +43,11 @@ public class ProjectManagerPropertiesFile {
     public void initProject() {
         this.setDirectory(getPropertyParseFile(PropertyKeysConstants.KEY_DIRECTORY));
         this.packageNameBase = getProperty(PropertyKeysConstants.KEY_PACKAGE);
-        this.directoryPackages = getProperty(PropertyKeysConstants.KEY_DIRECTORY_PACKGES);
+        this.directoryPackages = getProperty(PropertyKeysConstants.KEY_DIRECTORY_PACKAGES);
         this.modulesValueFormatSeparator = getProperty(PropertyKeysConstants.KEY_MODULE_FORMAT_SEPARATOR, PropertyKeysConstants.DEFAULT_VALUE_FORMAT_SEPARATOR);
         this.modulePositionPackage = getPropertyParseInt(PropertyKeysConstants.KEY_MODULE_FORMAT_POSITION_PACKAGE, PropertyKeysConstants.DEFAULT_VALUE_POSITION_PACKAGE);
         this.modulePositionDirectory = getPropertyParseInt(PropertyKeysConstants.KEY_MODULE_FORMAT_POSITION_DIRECTORY, PropertyKeysConstants.DEFAULT_VALUE_POSITION_DIRECTORY);
         this.classType = getProperty(PropertyKeysConstants.KEY_PROJECT_CLASS_TYPE);
-        this.packageCreate = getPropertyParseBool(PropertyKeysConstants.KEY_PROJECT_PACKAGE_CREATE, PropertyKeysConstants.DEFAULT_VALUE_PROJECT_PACKAGE_CREATE);
-        this.packageModuleCreate = getPropertyParseBool(PropertyKeysConstants.KEY_PROJECT_MODULE_PACKAGE_CREATE, PropertyKeysConstants.DEFAULT_VALUE_PROJECT_MODULE_PACKAGE_CREATE);
         
         initProjectModules();
     }
@@ -63,10 +57,20 @@ public class ProjectManagerPropertiesFile {
     }
     
     public TemplateFile getClassTemplateFile(ModuleProject moduleProject, String className) {
-        String classNameFinal = StringUtils.replaceAll(moduleProject.getClassNameTemplate(), ModuleProject.REGEX_CLASS_NAME, className);
+        String classPackage = "";
         
+        if (StringUtils.contains(className, PropertyKeysConstants.DEFAULT_VALUE_PACKAGE_SEPARATOR)) {
+            String[] classPackages = StringUtils.split(className, PropertyKeysConstants.REGEX_PACKAGE_SEPARATOR);
+            classPackage = Arrays.stream(classPackages)
+                                 .filter(value -> !value.equals(classPackages[classPackages.length - 1]))
+                                 .collect(Collectors.joining(File.separator))
+                                 .concat(File.separator);
+            className = classPackages[classPackages.length - 1];
+        }
+        
+        String classNameFinal     = StringUtils.replaceAll(moduleProject.getClassNameTemplate(), ModuleProject.REGEX_CLASS_NAME, className);
         File   directoryPathClass = getDirectoryPathModuleProject(moduleProject);
-        String fileName           = String.format("%1$s%2$s%3$s.%4$s", directoryPathClass.getAbsolutePath(), File.separator, classNameFinal, moduleProject.getClassExtension());
+        String fileName           = String.format("%1$s%2$s%3$s%4$s.%5$s", directoryPathClass.getAbsolutePath(), File.separator, classPackage, classNameFinal, moduleProject.getClassExtension());
         File   file               = new File(fileName);
         
         if (file.exists()) {
@@ -85,8 +89,8 @@ public class ProjectManagerPropertiesFile {
         directory.append(moduleProject.getDirectoryName());
         directory.append(File.separator);
         directory.append(removeSlashes(this.directoryPackages));
-        directory.append(splitPackages(this.packageNameBase, PropertyKeysConstants.DEFAULT_VALUE_PACKAGE_SEPARATOR));
-        directory.append(splitPackages(moduleProject.getPackageName(), PropertyKeysConstants.DEFAULT_VALUE_PACKAGE_SEPARATOR));
+        directory.append(splitPackages(this.packageNameBase, PropertyKeysConstants.REGEX_PACKAGE_SEPARATOR));
+        directory.append(splitPackages(moduleProject.getPackageName(), PropertyKeysConstants.REGEX_PACKAGE_SEPARATOR));
         
         File directoryModule = new File(directory.toString());
         
