@@ -59,6 +59,11 @@ public class ModuleProject {
                                                            .map(Map.Entry::getValue)
                                                            .map(value -> replaceValueClassName(value, className))
                                                            .toArray(String[]::new);
+            
+            if (valueList.length == 0) {
+                return fileString;
+            }
+            
             return String.format(fileString, valueList);
         } catch (Exception ex) {
             throw new RuntimeException(ex);
