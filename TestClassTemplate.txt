@@ -1,0 +1,32 @@
+package %1$s;
+
+import java.io.File;
+import java.io.Serializable;
+import java.net.URI;
+import %6$s;
+
+@Deprecated
+public class TestClassTemplate extends File implements Serializable {
+    
+    private %7$s myTestClass;
+    
+    public void FirstMethod() {
+        System.out.println("FirstMethod ClassName \"%8$s\"");
+    }
+    
+    public %2$s(String pathname) {
+        super(pathname);
+    }
+    
+    public %3$s(String parent, String child) {
+        super(parent, child);
+    }
+    
+    public %4$s(File parent, String child) {
+        super(parent, child);
+    }
+    
+    public %5$s(URI uri) {
+        super(uri);
+    }
+}
