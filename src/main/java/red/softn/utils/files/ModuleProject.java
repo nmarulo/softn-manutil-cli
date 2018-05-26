@@ -22,6 +22,12 @@ public class ModuleProject {
     
     public static final String REGEX_CLASS_NAME = "#\\{className\\}";
     
+    public static final String REGEX_CLASS_WITH_PACKAGE = "#\\{classWithPackage\\}";
+    
+    public static final String REGEX_ONLY_PACKAGE = "#\\{onlyPackage\\}";
+    
+    private static final String REGEX_CLASS_NAME_FINAL = "#\\{classNameFinal\\}";
+    
     private String directoryName;
     
     private String packageName;
@@ -51,14 +57,16 @@ public class ModuleProject {
         this.stringReplaceTemplate.put(key, value);
     }
     
-    public String stringReplaceTemplate(String className) {
+    public String stringReplaceTemplate(String className, String classWithPackage, String onlyPackage, String classNameFinal) {
         try {
             String fileString = FileUtils.readFileToString(this.classTemplateFile, "UTF-8");
             String[] valueList = this.stringReplaceTemplate.entrySet()
                                                            .stream()
                                                            .map(Map.Entry::getValue)
-                                                           .map(value -> replaceValueClassName(value, className))
+                                                           .map(value -> replaceRegex(value, className, classWithPackage, onlyPackage, classNameFinal))
                                                            .toArray(String[]::new);
+            
+            fileString = replaceRegex(fileString, className, classWithPackage, onlyPackage, classNameFinal);
             
             if (valueList.length == 0) {
                 return fileString;
@@ -126,12 +134,25 @@ public class ModuleProject {
         this.stringReplaceTemplate = stringReplaceTemplate;
     }
     
-    public String replaceNameClass(String fileString, String className) {
-        String classNameFile = FilenameUtils.getBaseName(this.classTemplateFile.getName());
-        classNameFile = String.format(" %1$s ", classNameFile);
-        className = String.format(" %1$s ", className);
+    public String replaceRegex(String value, String className, String classPackage, String onlyPackage, String classNameFinal) {
+        value = replaceClassNameFinal(value, classNameFinal);
+        value = replaceClassWithPackage(value, classPackage);
+        value = replaceValueClassName(value, className);
+        value = replaceOnlyPackage(value, onlyPackage);
         
-        return StringUtils.replaceAll(fileString, classNameFile, className);
+        return value;
+    }
+    
+    private String replaceClassWithPackage(String value, String classPackage) {
+        return StringUtils.replaceAll(value, REGEX_CLASS_WITH_PACKAGE, classPackage);
+    }
+    
+    private String replaceOnlyPackage(String value, String onlyPackage) {
+        return StringUtils.replaceAll(value, REGEX_ONLY_PACKAGE, onlyPackage);
+    }
+    
+    private String replaceClassNameFinal(String value, String classNameFinal) {
+        return StringUtils.replaceAll(value, REGEX_CLASS_NAME_FINAL, classNameFinal);
     }
     
     private String replaceValueClassName(String value, String className) {
