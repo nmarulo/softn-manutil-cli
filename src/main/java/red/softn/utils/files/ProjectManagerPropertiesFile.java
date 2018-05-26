@@ -29,6 +29,8 @@ public class ProjectManagerPropertiesFile {
     
     private String classType;
     
+    private String packageSeparator;
+    
     public ProjectManagerPropertiesFile(File fileProperties) {
         this.fileProperties = fileProperties;
         this.properties = new Properties();
@@ -48,6 +50,7 @@ public class ProjectManagerPropertiesFile {
         this.modulePositionPackage = getPropertyParseInt(PropertyKeysConstants.KEY_MODULE_FORMAT_POSITION_PACKAGE, PropertyKeysConstants.DEFAULT_VALUE_POSITION_PACKAGE);
         this.modulePositionDirectory = getPropertyParseInt(PropertyKeysConstants.KEY_MODULE_FORMAT_POSITION_DIRECTORY, PropertyKeysConstants.DEFAULT_VALUE_POSITION_DIRECTORY);
         this.classType = getProperty(PropertyKeysConstants.KEY_PROJECT_CLASS_TYPE);
+        this.packageSeparator = getProperty(PropertyKeysConstants.KEY_PROJECT_PACKAGE_SEPARATOR, PropertyKeysConstants.DEFAULT_VALUE_PACKAGE_SEPARATOR);
         
         initProjectModules();
     }
@@ -57,28 +60,33 @@ public class ProjectManagerPropertiesFile {
     }
     
     public TemplateFile getClassTemplateFile(ModuleProject moduleProject, String className) {
-        String classPackage = "";
+        String classPackagePath = "";
+        String onlyPackage      = "";
         
         if (StringUtils.contains(className, PropertyKeysConstants.DEFAULT_VALUE_PACKAGE_SEPARATOR)) {
             String[] classPackages = StringUtils.split(className, PropertyKeysConstants.REGEX_PACKAGE_SEPARATOR);
-            classPackage = Arrays.stream(classPackages)
-                                 .filter(value -> !value.equals(classPackages[classPackages.length - 1]))
-                                 .collect(Collectors.joining(File.separator))
-                                 .concat(File.separator);
-            className = classPackages[classPackages.length - 1];
+            classPackagePath = Arrays.stream(classPackages)
+                                     .filter(value -> isNotClassName(value, classPackages))
+                                     .collect(Collectors.joining(File.separator))
+                                     .concat(File.separator);
+            onlyPackage = Arrays.stream(classPackages)
+                                .filter(value -> isNotClassName(value, classPackages))
+                                .collect(Collectors.joining(this.packageSeparator))
+                                .concat(this.packageSeparator);
+            className = getClassNameFromClassPackages(classPackages);
         }
         
         String classNameFinal     = StringUtils.replaceAll(moduleProject.getClassNameTemplate(), ModuleProject.REGEX_CLASS_NAME, className);
         File   directoryPathClass = getDirectoryPathModuleProject(moduleProject);
-        String fileName           = String.format("%1$s%2$s%3$s%4$s.%5$s", directoryPathClass.getAbsolutePath(), File.separator, classPackage, classNameFinal, moduleProject.getClassExtension());
+        String fileName           = String.format("%1$s%2$s%3$s%4$s.%5$s", directoryPathClass.getAbsolutePath(), File.separator, classPackagePath, classNameFinal, moduleProject.getClassExtension());
         File   file               = new File(fileName);
         
         if (file.exists()) {
             throw new RuntimeException(String.format("El fichero ya existe. Verifique la ruta: %1$s", file.getAbsolutePath()));
         }
         
-        String content = moduleProject.stringReplaceTemplate(className);
-        content = moduleProject.replaceNameClass(content, classNameFinal);
+        String classWithPackage = onlyPackage.concat(classNameFinal);
+        String content          = moduleProject.stringReplaceTemplate(className, classWithPackage, onlyPackage, classNameFinal);
         
         return new TemplateFile(file, content);
     }
@@ -94,14 +102,10 @@ public class ProjectManagerPropertiesFile {
         
         File directoryModule = new File(directory.toString());
         
-        if (!directoryModule.exists() || !directoryModule.isDirectory()) {
-            String message = "El directorio no existe.";
+        if (!directoryModule.exists() || !directoryModule.isDirectory() || !directoryModule.canWrite()) {
+            String message = "El directorio no existe y/o no se puede escribir en el.";
             
-            if (!directoryModule.canWrite()) {
-                message = "No se puede escribir en el directorio.";
-            }
-            
-            throw new RuntimeException(String.format("%1$s Verifique la ruta: %1$s", message, directoryModule.getAbsolutePath()));
+            throw new RuntimeException(String.format("%1$s Verifique la ruta: %2$s", message, directoryModule.getAbsolutePath()));
         }
         
         return directoryModule;
@@ -215,5 +219,13 @@ public class ProjectManagerPropertiesFile {
         }
         
         return StringUtils.removeEnd(StringUtils.removeStart(value, "/"), "/");
+    }
+    
+    private boolean isNotClassName(String value, String[] classPackages) {
+        return !value.equals(getClassNameFromClassPackages(classPackages));
+    }
+    
+    private String getClassNameFromClassPackages(String[] classPackages) {
+        return classPackages[classPackages.length - 1];
     }
 }
