@@ -64,15 +64,15 @@ public class Main {
         println(value, false, null);
     }
     
-    private static void println(String value, Exception ex){
+    private static void println(String value, Exception ex) {
         println(value, false, ex);
     }
     
-    private static void println(String value, boolean wait, Exception ex) {
+    private static void println(String value, boolean wait, Exception exception) {
         System.out.println(value);
         
-        if (MODE_DEBUG) {
-            ex.printStackTrace();
+        if (MODE_DEBUG && exception != null) {
+            exception.printStackTrace();
         }
         
         if (wait) {
