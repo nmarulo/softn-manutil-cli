@@ -16,6 +16,8 @@ public class PropertyKeysConstants {
     
     public static final String KEY_MODULE_FORMAT_SEPARATOR = "project.module.format.separator";
     
+    public static final String KEY_PROJECT_PACKAGE_SEPARATOR = "project.package.separator";
+    
     public static final String DEFAULT_VALUE_POSITION_DIRECTORY = "0";
     
     public static final String DEFAULT_VALUE_POSITION_PACKAGE = "1";
@@ -26,7 +28,4 @@ public class PropertyKeysConstants {
     
     public static final String REGEX_PACKAGE_SEPARATOR = "\\.";
     
-    public static final boolean DEFAULT_VALUE_PROJECT_PACKAGE_CREATE = false;
-    
-    public static final boolean DEFAULT_VALUE_PROJECT_MODULE_PACKAGE_CREATE = false;
 }
