@@ -1,7 +1,7 @@
 package red.softn.utils.cli;
 
 import org.apache.commons.lang3.StringUtils;
-import red.softn.utils.files.ProjectManager;
+import red.softn.utils.properties.ProjectManagerProperties;
 
 import java.util.Arrays;
 import java.util.Scanner;
@@ -17,7 +17,7 @@ public class Main {
      *  c - [Requerido] Establece el nombre que se le agregara a los ficheros.
      *  m - [Opcional] Establece el nombre del modulo. Solo creara las clases de este modulo.
      *  help - [Opcional] Imprime la lista de comando disponibles.
-     *                      En este caso ya no seran obligatorias las opciones requeridas.
+     *                      En este caso ya no serán obligatorias las opciones requeridas.
      *  debug - [Opcional] En caso de error, imprime la traza de la excepción.
      */
     public static void main(String[] args) {
@@ -40,15 +40,15 @@ public class Main {
         String className      = projectManagerCli.getValueClass();
         
         println("Estableciendo fichero...");
-        ProjectManager projectManager = new ProjectManager(propertiesPath);
+        ProjectManagerProperties projectManagerProperties = new ProjectManagerProperties(propertiesPath);
         println("Estableciendo propiedades...");
-        projectManager.initProperties();
-        println("Creando clases...");
         
         if (StringUtils.isEmpty(moduleName)) {
-            projectManager.createClasses(className);
+            println("Creando clases en todos los directorios...");
+            projectManagerProperties.createClasses(className);
         } else {
-            projectManager.createClassModule(moduleName, className);
+            println(String.format("Creando clases para el directorio \"%1$s\"...", moduleName));
+            projectManagerProperties.createClassesModule(className, moduleName);
         }
         
         println("Finalizado correctamente.");
