@@ -6,7 +6,7 @@
 
     <groupId>red.softn</groupId>
     <artifactId>softn-manutil-cli</artifactId>
-    <version>0.1-beta</version>
+    <version>0.2-beta</version>
     <packaging>jar</packaging>
 
     <properties>
