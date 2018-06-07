@@ -1,11 +1,11 @@
-package %1$s;
+package %1$s#{onlyPackage};
 
 import java.io.File;
 import java.io.Serializable;
 import java.net.URI;
 import %6$s;
-import my.example.#{classWithPackage};
-import my.example.two.#{onlyPackage}SoftN#{className}Red;
+import my.example#{classWithPackage};
+import my.example.two#{onlyPackage}.SoftN#{className}Red;
 import %8$s;
 
 @Deprecated
@@ -27,9 +27,11 @@ public class #{classNameFinal} extends File implements Serializable {
     }
 
     public void FirstMethod() {
-        System.out.println("FirstMethod class name \"#{className}\"");
-        System.out.println("FirstMethod class with package \"#{classWithPackage}\"");
-        System.out.println("FirstMethod class name final \"#{classNameFinal}\"");
+        System.out.println("class name \"#{className}\"");
+        System.out.println("class with package \"#{classWithPackage}\"");
+        System.out.println("class name final \"#{classNameFinal}\"");
+        System.out.println("only package \"#{onlyPackage}\"");
+        System.out.println("package separator \"#{packageSeparator}\"");
     }
     
     public %2$s(String pathname) {
