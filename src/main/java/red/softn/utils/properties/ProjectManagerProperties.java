@@ -93,21 +93,27 @@ public class ProjectManagerProperties {
         }
         
         return StringUtils.removeEnd(Arrays.stream(classPackages)
-                                           .collect(Collectors.joining(separator)), className);
+                                           .collect(Collectors.joining(separator)), separator.concat(className));
     }
     
     private TemplateFile createTemplateFile(ProjectModuleProperties projectModuleProperties, String classPackagePath, String onlyPackage, String className) {
         String classNameFinal = StringUtils.replaceAll(projectModuleProperties.getProjectClassesTemplateName(), ProjectModuleProperties.REGEX_CLASS_NAME, className);
         String directoryPath  = getDirectoryPathModuleProject(projectModuleProperties);
-        String fileName       = String.format("%1$s%2$s%3$s%4$s.%5$s", directoryPath, File.separator, classPackagePath, classNameFinal, projectModuleProperties.getProjectClassesTemplateType());
+        String fileName       = String.format("%1$s%2$s%3$s%2$s%4$s.%5$s", directoryPath, File.separator, classPackagePath, classNameFinal, projectModuleProperties.getProjectClassesTemplateType());
         File   file           = new File(fileName);
         
         if (file.exists()) {
             throw new RuntimeException(String.format("El fichero ya existe. Verifique la ruta: %1$s", file.getAbsolutePath()));
         }
         
-        String classWithPackage = onlyPackage.concat(classNameFinal);
-        String content          = projectModuleProperties.getContentFileTemplate(className, classWithPackage, onlyPackage, classNameFinal);
+        String classWithPackage = this.masterProperties.getProjectPackageSeparator().concat(classNameFinal);
+        
+        if (StringUtils.isNotEmpty(onlyPackage)) {
+            onlyPackage = this.masterProperties.getProjectPackageSeparator().concat(onlyPackage);
+            classWithPackage = String.format("%2$s%1$s%3$s", this.masterProperties.getProjectPackageSeparator(), onlyPackage, classNameFinal);
+        }
+        
+        String content = projectModuleProperties.getContentFileTemplate(className, classWithPackage, onlyPackage, classNameFinal, this.masterProperties.getProjectPackageSeparator());
         
         return new TemplateFile(file, content);
     }

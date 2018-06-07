@@ -16,6 +16,8 @@ public class ProjectModuleProperties {
     
     private static final String REGEX_CLASS_NAME_FINAL = "#\\{classNameFinal\\}";
     
+    private static final String REGEX_PACKAGE_SEPARATOR = "#\\{packageSeparator\\}";
+    
     /**
      * Por ejemplo: de la key "project.modules.10", el valor de "keyModule" seria solo "10"
      */
@@ -33,16 +35,16 @@ public class ProjectModuleProperties {
     
     private Map<Integer, String> projectClassesTemplateReplace;
     
-    public String getContentFileTemplate(String className, String classWithPackage, String onlyPackage, String classNameFinal) {
+    public String getContentFileTemplate(String className, String classWithPackage, String onlyPackage, String classNameFinal, String packageSeparator) {
         try {
             String fileString = FileUtils.readFileToString(this.projectClassesTemplatePath, "UTF-8");
             String[] valueList = this.projectClassesTemplateReplace.entrySet()
                                                                    .stream()
                                                                    .map(Map.Entry::getValue)
-                                                                   .map(value -> replaceRegex(value, className, classWithPackage, onlyPackage, classNameFinal))
+                                                                   .map(value -> replaceRegex(value, className, classWithPackage, onlyPackage, classNameFinal, packageSeparator))
                                                                    .toArray(String[]::new);
             
-            fileString = replaceRegex(fileString, className, classWithPackage, onlyPackage, classNameFinal);
+            fileString = replaceRegex(fileString, className, classWithPackage, onlyPackage, classNameFinal, packageSeparator);
             
             if (valueList.length == 0) {
                 return fileString;
@@ -54,11 +56,12 @@ public class ProjectModuleProperties {
         }
     }
     
-    public String replaceRegex(String value, String className, String classPackage, String onlyPackage, String classNameFinal) {
+    public String replaceRegex(String value, String className, String classPackage, String onlyPackage, String classNameFinal, String packageSeparator) {
         value = replaceClassNameFinal(value, classNameFinal);
         value = replaceClassWithPackage(value, classPackage);
         value = replaceValueClassName(value, className);
         value = replaceOnlyPackage(value, onlyPackage);
+        value = replacePackageSeparator(value, packageSeparator);
         
         return value;
     }
@@ -133,5 +136,9 @@ public class ProjectModuleProperties {
     
     private String replaceValueClassName(String value, String className) {
         return StringUtils.replaceAll(value, REGEX_CLASS_NAME, className);
+    }
+    
+    private String replacePackageSeparator(String value, String packageSeparator) {
+        return StringUtils.replaceAll(value, REGEX_PACKAGE_SEPARATOR, packageSeparator);
     }
 }
