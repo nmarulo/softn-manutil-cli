@@ -33,25 +33,27 @@ public class ProjectManagerProperties {
     }
     
     public void createClassesModule(String ClassName, String moduleName) {
-        createFiles(ClassName, getProjectModule(moduleName));
+        createFiles(ClassName, getProjectModule(moduleName.split(",")));
     }
     
-    private List<ProjectModuleProperties> getProjectModule(String moduleName) {
+    private List<ProjectModuleProperties> getProjectModule(String[] moduleName) {
         if (!anyMatchProjectModuleDirectory(moduleName)) {
-            throw new RuntimeException(String.format("El nombre del directorio \"%1$s\" no existe en el fichero \"properties\".", moduleName));
+            throw new RuntimeException(String.format("El nombre del directorio \"%1$s\" no existe en el fichero \"properties\".", StringUtils.join(moduleName, ",")));
         }
         
         return this.masterProperties.getProjectModuleList()
                                     .stream()
-                                    .filter(value -> moduleName.equals(value.getDirectoryName()))
+                                    .filter(value -> Arrays.stream(moduleName)
+                                                           .anyMatch(value.getDirectoryName()::equals))
                                     .collect(Collectors.toList());
     }
     
-    private boolean anyMatchProjectModuleDirectory(String moduleName) {
+    private boolean anyMatchProjectModuleDirectory(String[] moduleName) {
         return this.masterProperties.getProjectModuleList()
                                     .stream()
                                     .map(ProjectModuleProperties::getDirectoryName)
-                                    .anyMatch(moduleName::equals);
+                                    .anyMatch(value -> Arrays.stream(moduleName)
+                                                             .anyMatch(value::equals));
     }
     
     private void createFiles(String className, List<ProjectModuleProperties> projectModulePropertiesList) {
@@ -106,10 +108,12 @@ public class ProjectManagerProperties {
             throw new RuntimeException(String.format("El fichero ya existe. Verifique la ruta: %1$s", file.getAbsolutePath()));
         }
         
-        String classWithPackage = this.masterProperties.getProjectPackageSeparator().concat(classNameFinal);
+        String classWithPackage = this.masterProperties.getProjectPackageSeparator()
+                                                       .concat(classNameFinal);
         
         if (StringUtils.isNotEmpty(onlyPackage)) {
-            onlyPackage = this.masterProperties.getProjectPackageSeparator().concat(onlyPackage);
+            onlyPackage = this.masterProperties.getProjectPackageSeparator()
+                                               .concat(onlyPackage);
             classWithPackage = String.format("%2$s%1$s%3$s", this.masterProperties.getProjectPackageSeparator(), onlyPackage, classNameFinal);
         }
         
