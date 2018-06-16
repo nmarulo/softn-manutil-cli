@@ -32,6 +32,8 @@ public class #{classNameFinal} extends File implements Serializable {
         System.out.println("class name final \"#{classNameFinal}\"");
         System.out.println("only package \"#{onlyPackage}\"");
         System.out.println("package separator \"#{packageSeparator}\"");
+        System.out.println("class name lower \"#{classNameLower}\"");
+        System.out.println("class name final lower \"#{classNameFinalLower}\"");
     }
     
     public %2$s(String pathname) {
