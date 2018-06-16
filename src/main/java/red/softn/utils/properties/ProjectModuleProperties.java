@@ -10,11 +10,15 @@ public class ProjectModuleProperties {
     
     public static final String REGEX_CLASS_NAME = "#\\{className\\}";
     
-    public static final String REGEX_CLASS_WITH_PACKAGE = "#\\{classWithPackage\\}";
+    private static final String REGEX_CLASS_NAME_LOWER = "#\\{classNameLower\\}";
     
-    public static final String REGEX_ONLY_PACKAGE = "#\\{onlyPackage\\}";
+    private static final String REGEX_CLASS_WITH_PACKAGE = "#\\{classWithPackage\\}";
+    
+    private static final String REGEX_ONLY_PACKAGE = "#\\{onlyPackage\\}";
     
     private static final String REGEX_CLASS_NAME_FINAL = "#\\{classNameFinal\\}";
+    
+    private static final String REGEX_CLASS_NAME_FINAL_LOWER = "#\\{classNameFinalLower\\}";
     
     private static final String REGEX_PACKAGE_SEPARATOR = "#\\{packageSeparator\\}";
     
@@ -62,6 +66,8 @@ public class ProjectModuleProperties {
         value = replaceValueClassName(value, className);
         value = replaceOnlyPackage(value, onlyPackage);
         value = replacePackageSeparator(value, packageSeparator);
+        value = replaceClassNameFinalLower(value, classNameFinal);
+        value = replaceValueClassNameLower(value, className);
         
         return value;
     }
@@ -134,8 +140,16 @@ public class ProjectModuleProperties {
         return StringUtils.replaceAll(value, REGEX_CLASS_NAME_FINAL, classNameFinal);
     }
     
+    private String replaceClassNameFinalLower(String value, String classNameFinal) {
+        return StringUtils.replaceAll(value, REGEX_CLASS_NAME_FINAL_LOWER, StringUtils.uncapitalize(classNameFinal));
+    }
+    
     private String replaceValueClassName(String value, String className) {
         return StringUtils.replaceAll(value, REGEX_CLASS_NAME, className);
+    }
+    
+    private String replaceValueClassNameLower(String value, String className) {
+        return StringUtils.replaceAll(value, REGEX_CLASS_NAME_LOWER, StringUtils.uncapitalize(className));
     }
     
     private String replacePackageSeparator(String value, String packageSeparator) {
