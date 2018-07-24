@@ -13,19 +13,26 @@ public class Main {
     
     /*
      * Comandos:
-     *  p - [Requerido] Establece la ruta del fichero "properties".
-     *  c - [Requerido] Establece el nombre que se le agregara a los ficheros.
-     *  m - [Opcional] Establece el nombre del modulo. Solo creara las clases de este modulo.
-     *  help - [Opcional] Imprime la lista de comando disponibles.
+     *
+     * "--edit-properties": Establece que la acción a ejecutar sera la de edición del fichero properties.
+     *          "-p": [Requerido] Establece la ruta del fichero "properties".
+     *          "--json": [Requerido] Establece el contenido del fichero properties en formato json.
+     *
+     * "--create-classes": Establece que la acción a ejecutar sera la de crear las clases, es decir, a partir de plantillas creara un fichero en la ubicación determinada por el fichero properties.
+     *          "-p": [Requerido] Establece la ruta del fichero "properties".
+     *          "-c": [Requerido] Establece el nombre que se le agregara a los ficheros.
+     *          "-m": [Opcional] Establece el nombre del modulo. Solo creara las clases de este modulo.
+     * "--help": [Opcional] Imprime la lista de comando disponibles.
      *                      En este caso ya no serán obligatorias las opciones requeridas.
-     *  debug - [Opcional] En caso de error, imprime la traza de la excepción.
+     * "--debug": [Opcional] En caso de error, imprime la traza de la excepción.
+     *
+     * Ejemplo:
+     * --edit-properties -p C:/softn-red/master.properties -json {...}
+     * --create-classes -p C:/softn-red/master.properties -c SoftNRed -m module-softn
+     * --edit-properties -p C:/softn-red/master.properties -json {...} --debug
      */
     public static void main(String[] args) {
         checkDebug(args);
-        
-        //--edit-properties -p ... -json ....
-        //--create-classes -p ... -c ... -m ...
-        //--help
         
         try {
             ProjectManagerCli projectManagerCli = new ProjectManagerCli(args);
