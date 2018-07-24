@@ -23,15 +23,35 @@ public class Main {
     public static void main(String[] args) {
         checkDebug(args);
         
+        //--edit-properties -p ... -json ....
+        //--create-classes -p ... -c ... -m ...
+        //--help
+        
         try {
             ProjectManagerCli projectManagerCli = new ProjectManagerCli(args);
             
             if (projectManagerCli.isNotOptionHelp()) {
-                initProject(projectManagerCli);
+                if (projectManagerCli.isHasOptCreateClasses()) {
+                    initProject(projectManagerCli);
+                } else if (projectManagerCli.isHasOptEditProperties()) {
+                    initEditProperties(projectManagerCli);
+                } else {
+                    throw new Exception("Error desconocido.");
+                }
             }
         } catch (Exception ex) {
             println(ex.getMessage(), ex);
         }
+    }
+    
+    private static void initEditProperties(ProjectManagerCli projectManagerCli) {
+        String propertiesPath = projectManagerCli.getValueProperties();
+        String json           = projectManagerCli.getValueJson();
+        
+        println("Estableciendo fichero...");
+        println("Procesando Json...");
+        println("Editando fichero properties...");
+        println("Finalizado correctamente.");
     }
     
     private static void initProject(ProjectManagerCli projectManagerCli) {
