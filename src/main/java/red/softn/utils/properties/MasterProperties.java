@@ -137,6 +137,10 @@ public class MasterProperties extends AProperty {
         if (this.projectModuleFormatPositionDirectory == this.projectModuleFormatPositionPackage) {
             throw new RuntimeException(String.format("Los valores de las propiedades \"%1$s\" y \"%2$s\" no pueden ser iguales.", PropertyConstants.KEY_MODULE_FORMAT_POSITION_DIRECTORY, PropertyConstants.KEY_MODULE_FORMAT_POSITION_PACKAGE));
         }
+        
+        if (this.projectModuleFormatPositionDirectory < 0 || this.projectModuleFormatPositionDirectory > 1 || this.projectModuleFormatPositionPackage < 0 || this.projectModuleFormatPositionPackage > 1) {
+            throw new RuntimeException(String.format("El valor de las propiedades \"%1$s\" y \"%2$s\", debe ser consecutivas (0, 1).", PropertyConstants.KEY_MODULE_FORMAT_POSITION_DIRECTORY, PropertyConstants.KEY_MODULE_FORMAT_POSITION_PACKAGE));
+        }
     }
     
     private void setProjectDirectory() {

@@ -49,11 +49,27 @@ public class EditPropertyFile {
         propertiesConfiguration.addProperty(PropertyConstants.KEY_CLASS_TYPE, this.genericPropertyDO.getProjectClassType());
         propertiesConfiguration.addProperty(PropertyConstants.KEY_PROJECT_PACKAGE_SEPARATOR, this.genericPropertyDO.getProjectPackageSeparator());
         propertiesConfiguration.addProperty(PropertyConstants.KEY_MODULE_FORMAT_SEPARATOR, this.genericPropertyDO.getProjectModuleFormatSeparator());
-        propertiesConfiguration.addProperty(PropertyConstants.KEY_MODULE_FORMAT_POSITION_DIRECTORY, this.genericPropertyDO.getProjectModuleFormatPositionDirectory());
-        propertiesConfiguration.addProperty(PropertyConstants.KEY_MODULE_FORMAT_POSITION_PACKAGE, this.genericPropertyDO.getProjectModuleFormatPositionPackage());
+        
+        moduleDirectoryAndPackage(propertiesConfiguration);
         
         this.genericPropertyDO.getProjectModules()
                               .forEach(value -> this.setPropertiesModules(value, propertiesConfiguration));
+    }
+    
+    private void moduleDirectoryAndPackage(Configuration propertiesConfiguration) {
+        int posDir  = this.genericPropertyDO.getProjectModuleFormatPositionDirectory();
+        int posPack = this.genericPropertyDO.getProjectModuleFormatPositionPackage();
+        
+        if (posDir == posPack) {
+            throw new RuntimeException(String.format("Los valores de las propiedades \"%1$s\" y \"%2$s\" no pueden ser iguales.", PropertyConstants.KEY_MODULE_FORMAT_POSITION_DIRECTORY, PropertyConstants.KEY_MODULE_FORMAT_POSITION_PACKAGE));
+        }
+        
+        if (posDir < 0 || posDir > 1 || posPack < 0 || posPack > 1) {
+            throw new RuntimeException(String.format("El valor de las propiedades \"%1$s\" y \"%2$s\", debe ser consecutivas (0, 1).", PropertyConstants.KEY_MODULE_FORMAT_POSITION_DIRECTORY, PropertyConstants.KEY_MODULE_FORMAT_POSITION_PACKAGE));
+        }
+        
+        propertiesConfiguration.addProperty(PropertyConstants.KEY_MODULE_FORMAT_POSITION_DIRECTORY, posDir);
+        propertiesConfiguration.addProperty(PropertyConstants.KEY_MODULE_FORMAT_POSITION_PACKAGE, posPack);
     }
     
     private void setPropertiesModules(ModulePropertyDO modulePropertyDO, Configuration propertiesConfiguration) {
@@ -62,9 +78,14 @@ public class EditPropertyFile {
         //project.modules.0=module-a:base.module
         String moduleName      = modulePropertyDO.getProjectModuleName();
         String modulePackage   = modulePropertyDO.getProjectModulePackage();
-        String moduleSeparator = propertiesConfiguration.getString(PropertyConstants.KEY_MODULE_FORMAT_SEPARATOR);
+        String moduleSeparator = this.genericPropertyDO.getProjectModuleFormatSeparator();
         String projectModule   = String.format("%1$s%2$s%3$s", moduleName, moduleSeparator, modulePackage);
         String keyProperty     = String.format("%1$s%2$s", AProperty.KEY_MODULES, modulePropertyDO.getProjectModuleId());
+        
+        if (this.genericPropertyDO.getProjectModuleFormatPositionDirectory() > this.genericPropertyDO.getProjectModuleFormatPositionPackage()) {
+            projectModule = String.format("%1$s%2$s%3$s", modulePackage, moduleSeparator, moduleName);
+        }
+        
         propertiesConfiguration.addProperty(keyProperty, projectModule);
         
         //project.classes.template.path.0

@@ -17,9 +17,9 @@ public class GenericPropertyDO {
     
     private String projectModuleFormatSeparator;
     
-    private String projectModuleFormatPositionDirectory;
+    private int projectModuleFormatPositionDirectory;
     
-    private String projectModuleFormatPositionPackage;
+    private int projectModuleFormatPositionPackage;
     
     private List<ModulePropertyDO> projectModules;
     
@@ -75,19 +75,19 @@ public class GenericPropertyDO {
         this.projectModuleFormatSeparator = projectModuleFormatSeparator;
     }
     
-    public String getProjectModuleFormatPositionDirectory() {
+    public int getProjectModuleFormatPositionDirectory() {
         return projectModuleFormatPositionDirectory;
     }
     
-    public void setProjectModuleFormatPositionDirectory(String projectModuleFormatPositionDirectory) {
+    public void setProjectModuleFormatPositionDirectory(int projectModuleFormatPositionDirectory) {
         this.projectModuleFormatPositionDirectory = projectModuleFormatPositionDirectory;
     }
     
-    public String getProjectModuleFormatPositionPackage() {
+    public int getProjectModuleFormatPositionPackage() {
         return projectModuleFormatPositionPackage;
     }
     
-    public void setProjectModuleFormatPositionPackage(String projectModuleFormatPositionPackage) {
+    public void setProjectModuleFormatPositionPackage(int projectModuleFormatPositionPackage) {
         this.projectModuleFormatPositionPackage = projectModuleFormatPositionPackage;
     }
     

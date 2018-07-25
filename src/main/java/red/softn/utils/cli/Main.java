@@ -62,12 +62,10 @@ public class Main {
     }
     
     private static void propertiesToJson(ProjectManagerCli projectManagerCli) throws Exception {
-        String propertiesPath = projectManagerCli.getValueProperties();
-        
-        PropertyFile propertyFile = new PropertyFile(propertiesPath);
+        String       propertiesPath = projectManagerCli.getValueProperties();
+        PropertyFile propertyFile   = new PropertyFile(propertiesPath);
         propertyFile.propertiesDO();
-        
-        System.out.println(propertyFile.toJson());
+        println(propertyFile.toJson());
     }
     
     private static void initEditProperties(ProjectManagerCli projectManagerCli) {

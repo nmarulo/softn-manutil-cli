@@ -31,8 +31,8 @@ public class PropertyFile {
         this.genericPropertyDO.setProjectClassType(configuration.getString(PropertyConstants.KEY_CLASS_TYPE));
         this.genericPropertyDO.setProjectPackageSeparator(configuration.getString(PropertyConstants.KEY_PROJECT_PACKAGE_SEPARATOR));
         this.genericPropertyDO.setProjectModuleFormatSeparator(configuration.getString(PropertyConstants.KEY_MODULE_FORMAT_SEPARATOR));
-        this.genericPropertyDO.setProjectModuleFormatPositionDirectory(configuration.getString(PropertyConstants.KEY_MODULE_FORMAT_POSITION_DIRECTORY));
-        this.genericPropertyDO.setProjectModuleFormatPositionPackage(configuration.getString(PropertyConstants.KEY_MODULE_FORMAT_POSITION_PACKAGE));
+        this.genericPropertyDO.setProjectModuleFormatPositionDirectory(configuration.getInt(PropertyConstants.KEY_MODULE_FORMAT_POSITION_DIRECTORY));
+        this.genericPropertyDO.setProjectModuleFormatPositionPackage(configuration.getInt(PropertyConstants.KEY_MODULE_FORMAT_POSITION_PACKAGE));
         
         String                 keyModules = StringUtils.removeEnd(AProperty.KEY_MODULES, ".");
         List<ModulePropertyDO> list       = this.genericPropertyDO.getProjectModules();
