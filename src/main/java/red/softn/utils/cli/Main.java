@@ -3,6 +3,7 @@ package red.softn.utils.cli;
 import org.apache.commons.lang3.StringUtils;
 import red.softn.utils.properties.EditPropertyFile;
 import red.softn.utils.properties.ProjectManagerProperties;
+import red.softn.utils.properties.PropertyFile;
 
 import java.util.Arrays;
 import java.util.Scanner;
@@ -23,14 +24,20 @@ public class Main {
      *          "-p": [Requerido] Establece la ruta del fichero "properties".
      *          "-c": [Requerido] Establece el nombre que se le agregara a los ficheros.
      *          "-m": [Opcional] Establece el nombre del modulo. Solo creara las clases de este modulo.
+     *
+     * "--properties-json": Establece que la acción a ejecutar sera la de leer y retornar el contenido del fichero properties en formato Json.
+     *          "-p": [Requerido] Establece la ruta del fichero "properties".
+     *
      * "--help": [Opcional] Imprime la lista de comando disponibles.
      *                      En este caso ya no serán obligatorias las opciones requeridas.
+     *
      * "--debug": [Opcional] En caso de error, imprime la traza de la excepción.
      *
      * Ejemplo:
      * --edit-properties -p C:/softn-red/master.properties -json {...}
      * --create-classes -p C:/softn-red/master.properties -c SoftNRed -m module-softn
      * --edit-properties -p C:/softn-red/master.properties -json {...} --debug
+     * --properties-json -p C:/softn-red/master.properties
      */
     public static void main(String[] args) {
         checkDebug(args);
@@ -43,6 +50,8 @@ public class Main {
                     initProject(projectManagerCli);
                 } else if (projectManagerCli.isHasOptEditProperties()) {
                     initEditProperties(projectManagerCli);
+                } else if (projectManagerCli.isHasOptPropertiesJson()) {
+                    propertiesToJson(projectManagerCli);
                 } else {
                     throw new Exception("Error desconocido.");
                 }
@@ -50,6 +59,13 @@ public class Main {
         } catch (Exception ex) {
             println(ex.getMessage(), ex);
         }
+    }
+    
+    private static void propertiesToJson(ProjectManagerCli projectManagerCli) throws Exception {
+        String       propertiesPath = projectManagerCli.getValueProperties();
+        PropertyFile propertyFile   = new PropertyFile(propertiesPath);
+        propertyFile.propertiesDO();
+        println(propertyFile.toJson());
     }
     
     private static void initEditProperties(ProjectManagerCli projectManagerCli) {

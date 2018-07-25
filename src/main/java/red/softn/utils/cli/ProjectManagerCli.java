@@ -30,6 +30,8 @@ public class ProjectManagerCli {
     
     private static final String OPTION_LONG_VALUE_JSON = "json";
     
+    private static final String OPTION_LONG_VALUE_PROPERTIES_JSON = "properties-json";
+    
     private CommandLine commandLine;
     
     private Options options;
@@ -39,6 +41,8 @@ public class ProjectManagerCli {
     private boolean hasOptEditProperties;
     
     private boolean hasOptCreateClasses;
+    
+    private boolean hasOptPropertiesJson;
     
     public ProjectManagerCli(String[] args) throws Exception {
         this(args, new DefaultParser());
@@ -102,6 +106,7 @@ public class ProjectManagerCli {
         this.hasOptHelp = StringUtils.containsIgnoreCase(opts, "-".concat(OPTION_LONG_VALUE_H));
         this.hasOptCreateClasses = StringUtils.containsIgnoreCase(opts, "-".concat(OPTION_LONG_VALUE_CREATE_CLASSES));
         this.hasOptEditProperties = StringUtils.containsIgnoreCase(opts, "-".concat(OPTION_LONG_VALUE_EDIT_PROPERTIES));
+        this.hasOptPropertiesJson = StringUtils.containsIgnoreCase(opts, "-".concat(OPTION_LONG_VALUE_PROPERTIES_JSON));
     }
     
     private String getOptionValue(String opt) {
@@ -174,6 +179,18 @@ public class ProjectManagerCli {
                                     .longOpt(OPTION_LONG_VALUE_CREATE_CLASSES)
                                     .required(!this.hasOptHelp)
                                     .build());
+        /*
+         * Indica que se retornara el fichero properties en formato json.
+         * Esta opción debe ir junto con "-p"
+         */
+        optionGroup.addOption(Option.builder()
+                                    .longOpt(OPTION_LONG_VALUE_PROPERTIES_JSON)
+                                    .required(!this.hasOptHelp)
+                                    .build());
         this.options.addOptionGroup(optionGroup);
+    }
+    
+    public boolean isHasOptPropertiesJson() {
+        return this.hasOptPropertiesJson;
     }
 }
