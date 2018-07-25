@@ -1,6 +1,7 @@
 package red.softn.utils.cli;
 
 import org.apache.commons.lang3.StringUtils;
+import red.softn.utils.properties.EditPropertyFile;
 import red.softn.utils.properties.ProjectManagerProperties;
 
 import java.util.Arrays;
@@ -55,9 +56,12 @@ public class Main {
         String propertiesPath = projectManagerCli.getValueProperties();
         String json           = projectManagerCli.getValueJson();
         
-        println("Estableciendo fichero...");
+        println("Estableciendo datos...");
+        EditPropertyFile editPropertyFile = new EditPropertyFile(propertiesPath, json);
         println("Procesando Json...");
+        editPropertyFile.processJson();
         println("Editando fichero properties...");
+        editPropertyFile.editPropertyFile();
         println("Finalizado correctamente.");
     }
     
