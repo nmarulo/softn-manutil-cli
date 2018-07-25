@@ -1,5 +1,6 @@
 package red.softn.utils.properties.objects;
 
+import java.util.LinkedList;
 import java.util.List;
 
 public class GenericPropertyDO {
@@ -21,6 +22,10 @@ public class GenericPropertyDO {
     private String projectModuleFormatPositionPackage;
     
     private List<ModulePropertyDO> projectModules;
+    
+    public GenericPropertyDO() {
+        this.projectModules = new LinkedList<>();
+    }
     
     public String getProjectDirectory() {
         return projectDirectory;

@@ -1,6 +1,6 @@
 package red.softn.utils.properties.objects;
 
-import java.util.Map;
+import java.util.TreeMap;
 
 public class ModulePropertyDO {
     
@@ -16,7 +16,11 @@ public class ModulePropertyDO {
     
     private String projectClassesTemplateType;
     
-    private Map<Integer, String> projectClassesTemplateReplace;
+    private TreeMap<Integer, String> projectClassesTemplateReplace;
+    
+    public ModulePropertyDO() {
+        this.projectClassesTemplateReplace = new TreeMap<>();
+    }
     
     public int getProjectModuleId() {
         return projectModuleId;
@@ -66,11 +70,11 @@ public class ModulePropertyDO {
         this.projectClassesTemplateType = projectClassesTemplateType;
     }
     
-    public Map<Integer, String> getProjectClassesTemplateReplace() {
+    public TreeMap<Integer, String> getProjectClassesTemplateReplace() {
         return projectClassesTemplateReplace;
     }
     
-    public void setProjectClassesTemplateReplace(Map<Integer, String> projectClassesTemplateReplace) {
+    public void setProjectClassesTemplateReplace(TreeMap<Integer, String> projectClassesTemplateReplace) {
         this.projectClassesTemplateReplace = projectClassesTemplateReplace;
     }
 }
