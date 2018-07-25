@@ -1,0 +1,47 @@
+{
+  "projectDirectory": "D:/disco1T/Documents/IntelliJIDEA/proyectbase",
+  "projectDirectoryPackages": "src/main/java",
+  "projectMainPackages": "red.softn",
+  "projectClassType": "java",
+  "projectPackageSeparator": ".",
+  "projectModuleFormatSeparator": ":",
+  "projectModuleFormatPositionDirectory": "0",
+  "projectModuleFormatPositionPackage": "1",
+  "projectModules": [
+    {
+      "projectModuleId": 0,
+      "projectModuleName": "module-a",
+      "projectModulePackage": "base.module",
+      "projectClassesTemplatePath": "D:/disco1T/Documents/IntelliJIDEA/util-cli/TestClassTemplate.txt",
+      "projectClassesTemplateName": "Red#{className}SoftNModuleA",
+      "projectClassesTemplateType": "php",
+      "projectClassesTemplateReplace": {
+        "0": "TEST#{packageSeparator}PROJECT#{packageSeparator}MODULE#{packageSeparator}0",
+        "1": "TEST02",
+        "2": "TEST03",
+        "3": "TEST04",
+        "4": "TEST05",
+        "5": "red.softn.v1#{classWithPackage}",
+        "6": "Red#{className}SoftNPrivateInstance",
+        "7": "red.softn.v2#{onlyPackage}.RedSoftN#{className}"
+      }
+    },
+    {
+      "projectModuleId": 1,
+      "projectModuleName": "module-b",
+      "projectModulePackage": "base.module",
+      "projectClassesTemplatePath": "D:/disco1T/Documents/IntelliJIDEA/util-cli/TestClassTemplate.txt",
+      "projectClassesTemplateName": "Red#{className}SoftNModuleB",
+      "projectClassesTemplateReplace": {
+        "0": "TEST#{packageSeparator}PROJECT#{packageSeparator}MODULE#{packageSeparator}0",
+        "1": "TEST02",
+        "2": "TEST03",
+        "3": "TEST04",
+        "4": "TEST05",
+        "5": "red.softn.v1#{classWithPackage}",
+        "6": "Red#{className}SoftNPrivateInstance",
+        "7": "red.softn.v2#{onlyPackage}.RedSoftN#{className}"
+      }
+    }
+  ]
+}
