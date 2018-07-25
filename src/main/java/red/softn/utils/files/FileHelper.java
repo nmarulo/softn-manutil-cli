@@ -1,6 +1,16 @@
 package red.softn.utils.files;
 
+import org.apache.commons.configuration2.Configuration;
+import org.apache.commons.configuration2.FileBasedConfiguration;
+import org.apache.commons.configuration2.PropertiesConfiguration;
+import org.apache.commons.configuration2.builder.BuilderParameters;
+import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
+import org.apache.commons.configuration2.builder.fluent.Parameters;
+import org.apache.commons.configuration2.builder.fluent.PropertiesBuilderParameters;
+
 import java.io.File;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 public class FileHelper {
     
@@ -34,5 +44,44 @@ public class FileHelper {
         }
         
         return file;
+    }
+    
+    public static void updatePropertyFile(File propertyFile, Consumer<Configuration> consumer) throws Exception {
+        updatePropertyFile(propertyFile, consumer, null);
+    }
+    
+    public static void updatePropertyFile(File propertyFile, Consumer<Configuration> consumer, Function<PropertiesBuilderParameters, PropertiesBuilderParameters> function) throws Exception {
+        BuilderParameters                                     builderParameters = parametersProperties(propertyFile, function);
+        FileBasedConfigurationBuilder<FileBasedConfiguration> builder           = new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class).configure(builderParameters);
+        
+        consumer.accept(builder.getConfiguration());
+        builder.save();
+    }
+    
+    public static Configuration getPropertiesConfiguration(File propertyFile, Function<PropertiesBuilderParameters, PropertiesBuilderParameters> function) throws Exception {
+        BuilderParameters                                     builderParameters = parametersProperties(propertyFile, function);
+        FileBasedConfigurationBuilder<FileBasedConfiguration> builder           = new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class).configure(builderParameters);
+        
+        return builder.getConfiguration();
+    }
+    
+    public static Configuration getPropertiesConfiguration(File propertyFile) throws Exception {
+        return getPropertiesConfiguration(propertyFile, null);
+    }
+    
+    private static PropertiesBuilderParameters parametersProperties(File propertyFile) {
+        return parametersProperties(propertyFile, null);
+    }
+    
+    private static PropertiesBuilderParameters parametersProperties(File propertyFile, Function<PropertiesBuilderParameters, PropertiesBuilderParameters> function) {
+        Parameters parameters = new Parameters();
+        PropertiesBuilderParameters propertiesBuilderParameters = parameters.properties()
+                                                                            .setFile(propertyFile);
+        
+        if (function == null) {
+            return propertiesBuilderParameters;
+        }
+        
+        return function.apply(propertiesBuilderParameters);
     }
 }
