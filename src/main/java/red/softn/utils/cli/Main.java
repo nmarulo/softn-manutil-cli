@@ -74,9 +74,9 @@ public class Main {
         
         println("Estableciendo datos...");
         EditPropertyFile editPropertyFile = new EditPropertyFile(propertiesPath, json);
-        println("Procesando Json...");
+        println("Procesando...");
         editPropertyFile.processJson();
-        println("Editando fichero properties...");
+        println("Editando fichero...");
         editPropertyFile.editPropertyFile();
         println("Finalizado correctamente.");
     }
