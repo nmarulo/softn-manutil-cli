@@ -3,6 +3,7 @@ package red.softn.utils.properties;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import org.apache.commons.configuration2.Configuration;
+import org.apache.commons.lang3.StringUtils;
 import red.softn.utils.files.FileHelper;
 import red.softn.utils.properties.objects.GenericPropertyDO;
 import red.softn.utils.properties.objects.ModulePropertyDO;
@@ -96,7 +97,7 @@ public class EditPropertyFile {
         keyProperty = String.format("%1$s%2$s", AProperty.KEY_CLASSES_TEMPLATE_NAME, modulePropertyDO.getProjectModuleId());
         propertiesConfiguration.addProperty(keyProperty, modulePropertyDO.getProjectClassesTemplateName());
         
-        if (modulePropertyDO.getProjectClassesTemplateType() != null) {
+        if (StringUtils.isNotEmpty(modulePropertyDO.getProjectClassesTemplateType())) {
             //project.classes.template.type.0
             keyProperty = String.format("%1$s%2$s", AProperty.KEY_CLASSES_TEMPLATE_TYPE, modulePropertyDO.getProjectModuleId());
             propertiesConfiguration.addProperty(keyProperty, modulePropertyDO.getProjectClassesTemplateType());
